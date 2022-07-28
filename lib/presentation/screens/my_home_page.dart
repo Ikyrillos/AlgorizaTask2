@@ -6,7 +6,7 @@ import 'package:sprinty/presentation/screens/completed_screen.dart';
 import 'package:sprinty/presentation/screens/fav_screen.dart';
 import 'package:sprinty/presentation/screens/uncompleted_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sprinty/utils/notify_helper.dart';
+import 'package:sprinty/utils/notify_service.dart';
 import '../../bloc/cubit/appcubit_cubit.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    notificationHelper = NotificationHelper();
+    notificationHelper = NotificationService();
     notificationHelper.initializeNotification();
   }
 
@@ -56,7 +56,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.black),
                   onPressed: () {
                     cubit.scheduleTasksList();
-                    var notify = NotificationHelper();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -98,13 +97,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            body: const TabBarView(
+            body: TabBarView(
               // ignore: prefer_const_literals_to_create_immutables
               children: [
                 AllScreen(),
-                CompletedScreen(),
-                UnCompletedScreen(),
-                FavoriteScreen(),
+                const CompletedScreen(),
+                const UnCompletedScreen(),
+                const FavoriteScreen(),
               ],
             ),
             bottomNavigationBar: Padding(

@@ -7,7 +7,7 @@ Kyrillos Maher Fekry**
 This is Algoriza Task 2
 Sprint App (TO-DO APP)
 Link to Video
-<https://drive.google.com/file/d/1Au4Ndt_9IhqRflY66xKxafagxMCEr6J9/view?usp=sharing>
+<https://drive.google.com/file/d/1B5-uzocu9NxFa59KfL18eBMLhh6VskaK/view?usp=sharing>
 
 # what is working
 
@@ -37,9 +37,6 @@ day
 - Local notification ( not scheduled but immediate only)
 - Time Picker
 
-
 # what is not implmented
 
-- Reminder not implemented
-- Repeat not implmented
-- Scheduled Notification not implmented
+- Reminder not Tested very well

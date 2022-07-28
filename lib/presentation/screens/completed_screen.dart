@@ -9,8 +9,7 @@ class CompletedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppStates>(
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         var cubit = AppCubit.get(context);
         return cubit.completedTasks.isEmpty
@@ -22,20 +21,21 @@ class CompletedScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ) : SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-              child: ListView.separated(
-                // ignore: prefer_const_constructors
-                itemBuilder: (context, index) => TaskItem(taskData: cubit.completedTasks[index], onPressed: () {
-                  cubit.deleteFromDatabase(cubit.completedTasks[index].id!);
-                
-                },),
-                separatorBuilder: (context, index) => const Divider(),
-                itemCount: AppCubit.get(context).completedTasks.length,
-              ),
-            ));
+              )
+            : SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                  child: ListView.separated(
+                    // ignore: prefer_const_constructors
+                    itemBuilder: (context, index) => TaskItem(
+                      taskData: cubit.completedTasks[index],
+                    ),
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemCount: AppCubit.get(context).completedTasks.length,
+                  ),
+                ));
       },
     );
   }

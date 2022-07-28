@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
             routes: {
               'home': (context) => const MyHomePage(title: 'Sprinty'),
               'addTask': (context) => AddTaskScreen(),
-              'all': (context) => const AllScreen(),
+              'all': (context) =>  AllScreen(),
               'completed': (context) => const CompletedScreen(),
               'delayed': (context) => const UnCompletedScreen(),
               'favorite': (context) => const FavoriteScreen(),

@@ -31,7 +31,7 @@ class AppCubit extends Cubit<AppStates> {
   Database? database;
 
   void createDataBase() {
-    openDatabase('todo4.db', version: 1, onCreate: (database, version) {
+    openDatabase('todo.db', version: 1, onCreate: (database, version) {
       database
           .execute(
               'CREATE TABLE task(id INTEGER PRIMARY KEY, title TEXT, date TEXT, startTime TEXT,endTime TEXT,reminder TEXT ,repeat TEXT ,status TEXT,color TEXT,isCompleted INTEGER)')
@@ -73,8 +73,8 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  void updateToDatabase(String status, int id) {
-    database!.execute(
+  Future<void> updateToDatabase(String status, int id) async {
+    await database!.execute(
         'UPDATE task SET status =? WHERE id=?', [status, id]).then((value) {
       emit(UpdateTaskDataBaseState());
       allTasks = [];
@@ -86,15 +86,19 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  void deleteFromDatabase(int id) {
-    database!.execute('DELETE FROM task WHERE id =?', [id]);
-    newTasks = [];
-    completedTasks = [];
-    delayedTasks = [];
-    allTasks = [];
-    emit(DeleteFromDataBaseState());
-    emit(SelectFromDataBaseState());
-    selectFromDatabase(database);
+  Future<void> deleteFromDatabase(int id) async {
+    try {
+      await database!.execute('DELETE FROM task WHERE id =?', [id]);
+      newTasks = [];
+      completedTasks = [];
+      delayedTasks = [];
+      allTasks = [];
+      emit(DeleteFromDataBaseState());
+
+      selectFromDatabase(database);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   // add to favorite
@@ -200,45 +204,5 @@ class AppCubit extends Cubit<AppStates> {
       }
     }
     emit(ScheduleTasksState());
-  }
-
-  void editTask(
-    formKey, {
-    required TextEditingController dateController,
-    required TextEditingController titleController,
-    required TextEditingController startTimeController,
-    required TextEditingController endTimeController,
-    required TextEditingController? reminderController,
-    required TextEditingController? repeatController,
-    required int id,
-  }) {
-    try {
-      if (dateController.text.isNotEmpty &&
-          titleController.text.isNotEmpty &&
-          startTimeController.text.isNotEmpty) {
-        database!.execute(
-          'UPDATE task SET date =? title=? startTime=? endTime=? reminder=? repeat=? WHERE id=?',
-          [
-            dateController.text,
-            titleController.text,
-            startTimeController.text,
-            endTimeController.text,
-            reminderController!.text,
-            repeatController!.text,
-            id
-          ],
-        ).then((value) {
-          emit(UpdateTaskDataBaseState());
-          allTasks = [];
-          newTasks = [];
-          completedTasks = [];
-          delayedTasks = [];
-          favoriteTasks = [];
-          selectFromDatabase(database);
-        });
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
   }
 }

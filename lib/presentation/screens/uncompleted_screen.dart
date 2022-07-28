@@ -31,9 +31,7 @@ class UnCompletedScreen extends StatelessWidget {
                     // ignore: prefer_const_constructors
                     itemBuilder: (context, index) => TaskItem(
                       taskData: cubit.delayedTasks[index],
-                      onPressed: () {
-                        cubit.deleteFromDatabase(cubit.delayedTasks[index].id!);
-                      },
+                      
                     ),
                     separatorBuilder: (context, index) => const Divider(),
                     itemCount: AppCubit.get(context).delayedTasks.length,

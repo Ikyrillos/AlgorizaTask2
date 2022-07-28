@@ -4,13 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sprinty/bloc/cubit/appcubit_cubit.dart';
 import 'package:sprinty/data/task.dart';
-import 'package:sprinty/utils/notify_helper.dart';
 
 class TaskItem extends StatelessWidget {
-  TaskItem({Key? key, required this.taskData, required this.onPressed})
-      : super(key: key);
+  TaskItem({Key? key, required this.taskData}) : super(key: key);
   final Task taskData;
-  final void Function()? onPressed;
   final List<String> repeatList = [
     "All",
     "Delayed",
@@ -52,24 +49,23 @@ class TaskItem extends StatelessWidget {
                 width: ScreenUtil().setWidth(10),
               ),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                height: 50.h,
-                width: 170.w,
+                margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
+                height: 60.h,
+                width: 200.w,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       taskData.title!,
-                      maxLines: 3,
+                      maxLines: 2,
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(
-                      height: 5.h,
-                    ),
+                    const Spacer(),
                     Text(
                       "${taskData.date!} ${taskData.startTime!}",
                       maxLines: 3,
@@ -81,7 +77,7 @@ class TaskItem extends StatelessWidget {
                   ],
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               PopupMenuButton<int>(
                 itemBuilder: (context) => [
                   // PopupMenuItem 1
@@ -89,9 +85,11 @@ class TaskItem extends StatelessWidget {
                     value: 1,
                     // row with 2 children
                     child: TextButton(
-                      onPressed: () {
-                        cubit.updateToDatabase('New', taskData.id!);
-                        cubit.scheduleTasksList();
+                      onPressed: () async {
+                        await cubit
+                            .updateToDatabase("New", taskData.id!)
+                            .then((value) => cubit.scheduleTasksList())
+                            .then((value) => Navigator.pop(context));
                       },
                       child: const Text('New'),
                     ),
@@ -100,9 +98,11 @@ class TaskItem extends StatelessWidget {
                     value: 1,
                     // row with 2 children
                     child: TextButton(
-                      onPressed: () {
-                        cubit.updateToDatabase('Delayed', taskData.id!);
-                        cubit.scheduleTasksList();
+                      onPressed: () async {
+                        await cubit
+                            .updateToDatabase("Delayed", taskData.id!)
+                            .then((value) => cubit.scheduleTasksList())
+                            .then((value) => Navigator.canPop(context));
                       },
                       child: const Text('Delayed'),
                     ),
@@ -110,9 +110,11 @@ class TaskItem extends StatelessWidget {
                   PopupMenuItem(
                     value: 2,
                     child: TextButton(
-                      onPressed: () {
-                        cubit.updateToDatabase('Favorite', taskData.id!);
-                        cubit.scheduleTasksList();
+                      onPressed: () async {
+                        await cubit
+                            .updateToDatabase('Favorite', taskData.id!)
+                            .then((value) => cubit.scheduleTasksList())
+                            .then((value) => Navigator.pop(context));
                       },
                       child: const Text('Favorite'),
                     ),
@@ -123,6 +125,7 @@ class TaskItem extends StatelessWidget {
                       onPressed: () {
                         cubit.updateToDatabase('Done', taskData.id!);
                         cubit.scheduleTasksList();
+                        Navigator.pop(context);
                       },
                       child: const Text('Complete'),
                     ),
@@ -130,9 +133,13 @@ class TaskItem extends StatelessWidget {
                   PopupMenuItem(
                     value: 2,
                     child: TextButton(
-                      onPressed: () {
-                        cubit.deleteFromDatabase(taskData.id!);
-                        cubit.scheduleTasksList();
+                      onPressed: () async {
+                        await cubit
+                            .deleteFromDatabase(taskData.id!)
+                            .then((value) => cubit.scheduleTasksList())
+                            .then((value) => Navigator.pop(context))
+                            .onError((error, stackTrace) =>
+                                debugPrint(error.toString()));
                       },
                       child: const Text('Delete'),
                     ),
@@ -151,12 +158,11 @@ class TaskItem extends StatelessWidget {
 }
 
 class ScheduleTaskItem extends StatelessWidget {
-  ScheduleTaskItem({
+  const ScheduleTaskItem({
     Key? key,
     required this.taskData,
   }) : super(key: key);
   final Task taskData;
-  final notify = NotificationHelper();
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppStates>(
@@ -186,60 +192,52 @@ class ScheduleTaskItem extends StatelessWidget {
               ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                height: 60.h,
-                width: 170.w,
-                child: GestureDetector(
-                  onTap: () {
-                    notify.displayNotification(
-                        id: taskData.id!,
-                        title: taskData.title!,
-                        body: taskData.date!);
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // clock icon
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            child: Icon(
-                              Icons.access_time,
-                              color: Colors.white,
-                              size: 15.w,
-                            ),
+                height: 80.h,
+                width: 210.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // clock icon
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(bottom: 5.h),
+                          child: Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 15.w,
                           ),
-                          SizedBox(
-                            width: ScreenUtil().setWidth(5),
-                          ),
-                          Text(
-                            "${taskData.startTime!} - ${taskData.endTime!}",
-                            maxLines: 3,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Text(
-                        taskData.title!,
-                        maxLines: 3,
-                        style: TextStyle(
-                          fontSize: 17.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
                         ),
+                        SizedBox(
+                          width: ScreenUtil().setWidth(5),
+                        ),
+                        Text(
+                          "${taskData.startTime!} - ${taskData.endTime!}",
+                          maxLines: 3,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const Spacer(),
+                    Text(
+                      taskData.title!,
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                  ],
                 ),
               ),
               const Spacer(),
@@ -253,6 +251,7 @@ class ScheduleTaskItem extends StatelessWidget {
                       onPressed: () {
                         cubit.updateToDatabase('Done', taskData.id!);
                         cubit.scheduleTasksList();
+                        Navigator.pop(context);
                       },
                       child: const Text('Complete task'),
                     ),
@@ -264,6 +263,7 @@ class ScheduleTaskItem extends StatelessWidget {
                       onPressed: () {
                         cubit.updateToDatabase('Favorite', taskData.id!);
                         cubit.scheduleTasksList();
+                        Navigator.pop(context);
                       },
                       child: const Text('Add to favorite'),
                     ),
@@ -275,6 +275,7 @@ class ScheduleTaskItem extends StatelessWidget {
                       onPressed: () {
                         cubit.deleteFromDatabase(taskData.id!);
                         cubit.scheduleTasksList();
+                        Navigator.pop(context);
                       },
                       child: const Text('Remove task'),
                     ),

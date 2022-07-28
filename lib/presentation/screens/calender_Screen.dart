@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:sprinty/bloc/cubit/appcubit_cubit.dart';
 import 'package:sprinty/shared/local/task_item.dart';
-import 'package:sprinty/utils/notify_helper.dart';
 
 class CalenderScreen extends StatelessWidget {
   const CalenderScreen({Key? key}) : super(key: key);
@@ -15,7 +14,7 @@ class CalenderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = AppCubit.get(context);
-
+    var dateName = DateTime.now();
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {},
       builder: (context, state) {
@@ -60,6 +59,7 @@ class CalenderScreen extends StatelessWidget {
                   selectedTextColor: Colors.white,
                   onDateChange: (date) {
                     var dateString = DateFormat.yMMMd().format(date);
+                    dateName = date;
                     cubit.datePickerData = date;
                     cubit.datePickerController.text = dateString;
                     cubit.scheduleTasksList();
@@ -69,6 +69,30 @@ class CalenderScreen extends StatelessWidget {
               const Divider(
                 color: Colors.grey,
                 thickness: 1,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      DateFormat('EEEE').format(dateName),
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      DateFormat.yMMMMd().format(dateName),
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Expanded(
                   child: Padding(
@@ -81,30 +105,6 @@ class CalenderScreen extends StatelessWidget {
                     : ListView.separated(
                         // ignore: prefer_const_constructors
                         itemBuilder: (context, index) {
-                          var task = cubit.scheduleTasks[index];
-                          var notify = NotificationHelper();
-                          if (task.repeat == "Daily") {
-                            DateTime date = DateFormat.jm()
-                                .parse(task.startTime.toString());
-                            var myTime = DateFormat("HH:mm").format(date);
-                            var hours =
-                                int.parse(myTime.toString().split(':')[0]);
-                            var minutes =
-                                int.parse(myTime.toString().split(':')[1]);
-                            DateTime fulTIme = DateTime(
-                                DateTime.now().year,
-                                DateTime.now().month,
-                                DateTime.now().day,
-                                hours,
-                                minutes);
-
-                            notify.showNotification(
-                              scheduleDate: fulTIme,
-                              id: cubit.scheduleTasks[index].id!,
-                              title: task.title,
-                              body: 'scheduleed for ${task.startTime}',
-                            );
-                          }
                           return ScheduleTaskItem(
                             taskData: cubit.scheduleTasks[index],
                           );
